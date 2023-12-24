@@ -1,0 +1,16 @@
+# src/main/resources/graphql/schema.graphqls
+
+type Query {
+    getFileMetadata(fileId: ID!, userId: ID!): File
+}
+
+type File {
+    id: ID!
+    content: String
+    item: Item
+}
+
+type Item {
+    id: ID!
+    userEmail: String
+}

@@ -17,4 +17,7 @@ public class Permission {
     @ManyToOne
     @JoinColumn(name = "group_id")
     private PermissionGroup group;
+    @OneToOne
+    @JoinColumn(name = "file_id")
+    private File file;
 }

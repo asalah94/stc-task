@@ -8,41 +8,56 @@ import com.stc.filemanager.service.SpaceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class SpaceServiceImpl implements SpaceService {
 
-    @Autowired
-    private PermissionGroupRepository permissionGroupRepository;
+    private final PermissionGroupRepository permissionGroupRepository;
+    private final PermissionRepository permissionRepository;
+    private final ItemRepository itemRepository;
 
     @Autowired
-    private PermissionRepository permissionRepository;
-
-    @Autowired
-    private ItemRepository itemRepository;
+    public SpaceServiceImpl(PermissionGroupRepository permissionGroupRepository,
+                            PermissionRepository permissionRepository,
+                            ItemRepository itemRepository) {
+        this.permissionGroupRepository = permissionGroupRepository;
+        this.permissionRepository = permissionRepository;
+        this.itemRepository = itemRepository;
+    }
 
     @Override
     public void createSpace(String spaceName) {
+        PermissionGroup group = createPermissionGroup();
+        Permission viewPermission = createPermissionForUser("admin@example.com", PermissionLevel.VIEW, group);
+        Permission editPermission = createPermissionForUser("admin2@example.com", PermissionLevel.EDIT, group);
+
+        Item space = createSpaceItem(spaceName, group);
+
+        permissionGroupRepository.save(group);
+        permissionRepository.saveAll(List.of(viewPermission, editPermission));
+        itemRepository.save(space);
+    }
+
+    private PermissionGroup createPermissionGroup() {
         PermissionGroup group = new PermissionGroup();
         group.setGroupName("admin_group");
-        permissionGroupRepository.save(group);
+        return group;
+    }
 
-        Permission viewPermission = new Permission();
-        viewPermission.setUserEmail("admin@example.com");
-        viewPermission.setPermissionLevel(PermissionLevel.VIEW);
-        viewPermission.setGroup(group);
-        permissionRepository.save(viewPermission);
+    private Permission createPermissionForUser(String userEmail, PermissionLevel permissionLevel, PermissionGroup group) {
+        Permission permission = new Permission();
+        permission.setUserEmail(userEmail);
+        permission.setPermissionLevel(permissionLevel);
+        permission.setGroup(group);
+        return permission;
+    }
 
-        Permission editPermission = new Permission();
-        editPermission.setUserEmail("admin2@example.com");
-        editPermission.setPermissionLevel(PermissionLevel.EDIT);
-        editPermission.setGroup(group);
-        permissionRepository.save(editPermission);
-
+    private Item createSpaceItem(String spaceName, PermissionGroup group) {
         Item space = new Item();
         space.setName(spaceName);
         space.setType(ItemType.SPACE);
         space.setPermissionGroup(group);
-        itemRepository.save(space);
+        return space;
     }
 }
-

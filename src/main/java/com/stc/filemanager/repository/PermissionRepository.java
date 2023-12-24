@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface PermissionRepository extends JpaRepository<Permission, Long> {
 
     Permission findByUserEmailAndGroup(String userEmail, PermissionGroup permissionGroup);
+
+    Permission findByUserEmailAndFileId(String userEmail, Long fileId);
 }

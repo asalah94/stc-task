@@ -20,4 +20,7 @@ public class File {
     @JoinColumn(name = "item_id")
     private Item item;
 
+    @OneToOne(mappedBy = "file")
+    private Permission permission;
+
 }
